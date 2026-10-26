@@ -1,0 +1,963 @@
+/* ==========================================================================
+   PULSE CALL: WhatsApp & Instagram Modern Call Experience
+   Engineered for Ultra-Low Bandwidth with Consumer-Grade Simplicity
+   ========================================================================== */
+
+:root {
+  --wa-bg: #0b141a;
+  --wa-surface: #111b21;
+  --wa-surface-elevated: #1f2c34;
+  --wa-border: rgba(255, 255, 255, 0.08);
+
+  --wa-green: #25d366;
+  --wa-green-dark: #00a884;
+  --wa-green-glow: rgba(37, 211, 102, 0.25);
+
+  --ig-blue: #0095f6;
+  --call-red: #ea0038;
+  --call-red-glow: rgba(234, 0, 56, 0.35);
+
+  --text-main: #e9edef;
+  --text-muted: #8696a0;
+  --text-dim: #667781;
+
+  --btn-glass: rgba(255, 255, 255, 0.12);
+  --btn-glass-hover: rgba(255, 255, 255, 0.2);
+  --btn-glass-active: rgba(255, 255, 255, 0.9);
+
+  --font-system: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  -webkit-tap-highlight-color: transparent;
+}
+
+html, body {
+  width: 100%;
+  height: 100dvh;
+  overflow: hidden;
+  background-color: var(--wa-bg);
+  color: var(--text-main);
+  font-family: var(--font-system);
+  font-size: 14px;
+  line-height: 1.4;
+  user-select: none;
+}
+
+#call-app {
+  width: 100%;
+  height: 100dvh;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  background-color: #000;
+  overflow: hidden;
+}
+
+/* ==========================================================================
+   1. In-Call Floating Top Bar (Instagram/WhatsApp Style)
+   ========================================================================== */
+.call-top-bar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 72px;
+  padding: 16px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: linear-gradient(to bottom, rgba(0, 0, 0, 0.75) 0%, rgba(0, 0, 0, 0) 100%);
+  z-index: 30;
+  pointer-events: none;
+}
+
+.call-top-bar * {
+  pointer-events: auto;
+}
+
+.call-contact-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.contact-name {
+  font-size: 18px;
+  font-weight: 600;
+  color: #fff;
+  letter-spacing: -0.01em;
+}
+
+.call-meta {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.meta-dot {
+  opacity: 0.6;
+}
+
+.call-security {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  color: #8696a0;
+}
+
+.top-bar-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.network-pill {
+  background: rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 9999px;
+  padding: 5px 10px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--text-main);
+  font-size: 11px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.network-pill:hover {
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.net-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background-color: var(--wa-green);
+  box-shadow: 0 0 8px var(--wa-green-glow);
+}
+
+.icon-btn-round {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  position: relative;
+  transition: all 0.15s ease;
+}
+
+.icon-btn-round:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.unread-dot {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: var(--wa-green);
+  border: 2px solid #000;
+}
+
+/* ==========================================================================
+   2. Main Call Viewport (Video + WhatsApp Voice Ripple Avatar)
+   ========================================================================== */
+.call-viewport {
+  flex: 1;
+  position: relative;
+  width: 100%;
+  height: 100%;
+  background-color: #0b141a;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.remote-video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  background-color: #000;
+}
+
+/* WhatsApp Voice Call Layout (Avatar + Ripple) */
+.voice-call-stage {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: radial-gradient(circle at center, #182229 0%, #0b141a 100%);
+  z-index: 5;
+  gap: 24px;
+}
+
+.voice-call-stage.active {
+  display: flex;
+}
+
+.avatar-ripple-container {
+  position: relative;
+  width: 140px;
+  height: 140px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.avatar-circle {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #1f2c34 0%, #111b21 100%);
+  border: 3px solid rgba(255, 255, 255, 0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.5);
+}
+
+.avatar-initial {
+  font-size: 48px;
+  font-weight: 600;
+  color: var(--text-main);
+}
+
+/* WhatsApp soundwave ripple animation */
+.ripple-ring {
+  position: absolute;
+  border-radius: 50%;
+  border: 2px solid var(--wa-green);
+  opacity: 0;
+  pointer-events: none;
+  animation: wa-ripple 2.5s infinite ease-out;
+}
+
+.ring-1 {
+  width: 130px;
+  height: 130px;
+  animation-delay: 0s;
+}
+
+.ring-2 {
+  width: 150px;
+  height: 150px;
+  animation-delay: 1.25s;
+}
+
+@keyframes wa-ripple {
+  0% { transform: scale(0.9); opacity: 0.6; }
+  50% { opacity: 0.25; }
+  100% { transform: scale(1.6); opacity: 0; }
+}
+
+.voice-status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 14px;
+  border-radius: 9999px;
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(12px);
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.badge-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background-color: var(--wa-green);
+}
+
+/* Floating Local Video Picture-in-Picture */
+.local-pip {
+  position: absolute;
+  top: 84px;
+  right: 16px;
+  width: 100px;
+  height: 140px;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6);
+  border: 1.5px solid rgba(255, 255, 255, 0.2);
+  z-index: 25;
+  background-color: #111;
+  transition: all 0.25s ease;
+}
+
+.local-video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transform: scaleX(-1);
+}
+
+.pip-label {
+  position: absolute;
+  bottom: 4px;
+  left: 6px;
+  font-size: 10px;
+  font-weight: 600;
+  padding: 1px 4px;
+  border-radius: 4px;
+  background: rgba(0, 0, 0, 0.6);
+  color: #fff;
+}
+
+/* Walkie-Talkie Push-to-Talk Floating Banner */
+.ptt-overlay {
+  position: absolute;
+  bottom: 110px;
+  left: 0;
+  right: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  z-index: 35;
+  pointer-events: none;
+}
+
+.ptt-overlay * {
+  pointer-events: auto;
+}
+
+.ptt-float-btn {
+  background: rgba(17, 27, 33, 0.85);
+  backdrop-filter: blur(16px);
+  border: 1.5px solid rgba(255, 255, 255, 0.18);
+  border-radius: 9999px;
+  padding: 10px 20px;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+  transition: all 0.15s ease;
+}
+
+.ptt-float-btn:hover {
+  background: rgba(31, 44, 52, 0.95);
+  border-color: var(--wa-green);
+}
+
+.ptt-float-btn.recording-active {
+  background: var(--wa-green);
+  color: #000;
+  border-color: #fff;
+  box-shadow: 0 0 24px var(--wa-green-glow);
+  transform: scale(1.04);
+}
+
+.ptt-rec-timer {
+  background: rgba(0, 0, 0, 0.7);
+  padding: 3px 8px;
+  border-radius: 6px;
+  font-size: 11px;
+  color: var(--wa-green);
+  font-weight: 600;
+}
+
+/* ==========================================================================
+   3. In-Call Bottom Floating Control Dock (WhatsApp/Instagram Style)
+   ========================================================================== */
+.call-bottom-dock {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 16px 20px 28px;
+  display: flex;
+  justify-content: center;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.85) 0%, rgba(0, 0, 0, 0) 100%);
+  z-index: 30;
+  pointer-events: none;
+}
+
+.dock-pill {
+  pointer-events: auto;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  background: rgba(18, 27, 34, 0.75);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  padding: 8px 18px;
+  border-radius: 40px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+}
+
+.dock-circle-btn {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: var(--btn-glass);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  position: relative;
+}
+
+.dock-circle-btn:hover {
+  background: var(--btn-glass-hover);
+  transform: translateY(-2px);
+}
+
+.dock-circle-btn.muted {
+  background: rgba(255, 255, 255, 0.95);
+  color: #000;
+}
+
+.dock-circle-btn.active {
+  background: var(--wa-green);
+  color: #000;
+}
+
+.btn-caption {
+  font-size: 9px;
+  font-weight: 500;
+  opacity: 0.85;
+}
+
+/* End Call Button (Classic Red Circle) */
+.end-call-btn {
+  background: var(--call-red) !important;
+  color: #fff !important;
+  border: none;
+  box-shadow: 0 4px 16px var(--call-red-glow);
+}
+
+.end-call-btn:hover {
+  background: #cc0031 !important;
+  transform: translateY(-2px);
+}
+
+/* ==========================================================================
+   4. Clean Slide-Up Chat & Voice Notes Drawer
+   ========================================================================== */
+.comms-drawer {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 60%;
+  max-height: 480px;
+  background: #111b21;
+  border-top-left-radius: 20px;
+  border-top-right-radius: 20px;
+  box-shadow: 0 -8px 36px rgba(0, 0, 0, 0.7);
+  display: flex;
+  flex-direction: column;
+  z-index: 50;
+  transition: transform 0.25s cubic-bezier(0.2, 0.9, 0.3, 1);
+}
+
+.comms-drawer.collapsed {
+  transform: translateY(100%);
+}
+
+.drawer-header {
+  padding: 8px 16px 12px;
+  border-bottom: 1px solid var(--wa-border);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.drawer-handle {
+  width: 36px;
+  height: 4px;
+  border-radius: 2px;
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.drawer-header-row {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.drawer-title {
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.drawer-close-btn {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-size: 18px;
+  cursor: pointer;
+  padding: 4px;
+}
+
+.drawer-feed {
+  flex: 1;
+  padding: 12px 16px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* WhatsApp-Style Chat Bubble */
+.chat-bubble {
+  max-width: 80%;
+  padding: 8px 12px;
+  border-radius: 10px;
+  font-size: 13px;
+  line-height: 1.35;
+}
+
+.chat-bubble.outbound {
+  align-self: flex-end;
+  background-color: #005c4b;
+  color: #fff;
+  border-bottom-right-radius: 2px;
+}
+
+.chat-bubble.inbound {
+  align-self: flex-start;
+  background-color: #202c33;
+  color: #fff;
+  border-bottom-left-radius: 2px;
+}
+
+/* WhatsApp-Style Playable Voice Note Card */
+.voice-log-item {
+  max-width: 85%;
+  background-color: #202c33;
+  padding: 8px 12px;
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.voice-log-item.outbound {
+  align-self: flex-end;
+  background-color: #005c4b;
+}
+
+.voice-log-header {
+  display: flex;
+  justify-content: space-between;
+  font-size: 10px;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.voice-log-body {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.voice-play-btn {
+  background: var(--wa-green);
+  color: #000;
+  border: none;
+  border-radius: 9999px;
+  padding: 5px 12px;
+  font-size: 12px;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  cursor: pointer;
+}
+
+.size-badge {
+  font-size: 10px;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.drawer-input-row {
+  padding: 10px 16px;
+  border-top: 1px solid var(--wa-border);
+  display: flex;
+  gap: 8px;
+  background-color: #111b21;
+}
+
+.chat-input {
+  flex: 1;
+  background-color: #202c33;
+  border: none;
+  border-radius: 20px;
+  padding: 10px 16px;
+  color: #fff;
+  font-family: inherit;
+  font-size: 13px;
+  outline: none;
+}
+
+.chat-send-btn {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--wa-green);
+  border: none;
+  color: #000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+/* ==========================================================================
+   5. Clean Lobby / Call Setup Screen (WhatsApp / Instagram Style)
+   ========================================================================== */
+.lobby-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: radial-gradient(circle at center, #182229 0%, #0b141a 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+  padding: 20px;
+}
+
+.lobby-overlay.hidden {
+  display: none !important;
+}
+
+.lobby-sheet {
+  width: 100%;
+  max-width: 400px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
+}
+
+.lobby-profile {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.lobby-avatar {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background-color: #202c33;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+}
+
+.lobby-app-title {
+  font-size: 22px;
+  font-weight: 700;
+  color: #fff;
+  letter-spacing: -0.02em;
+}
+
+.lobby-desc {
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+.lobby-card {
+  width: 100%;
+  background: #111b21;
+  border: 1px solid var(--wa-border);
+  border-radius: 20px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.4);
+}
+
+.lobby-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.field-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-dim);
+  letter-spacing: 0.05em;
+}
+
+.clean-input {
+  width: 100%;
+  background: #202c33;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  padding: 12px 14px;
+  color: #fff;
+  font-family: inherit;
+  font-size: 15px;
+  font-weight: 500;
+  outline: none;
+  transition: border-color 0.15s ease;
+}
+
+.clean-input:focus {
+  border-color: var(--wa-green);
+}
+
+.lobby-call-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.call-action-btn {
+  width: 100%;
+  padding: 12px 14px;
+  border-radius: 14px;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  transition: all 0.15s ease;
+  text-align: left;
+}
+
+.voice-btn {
+  background: rgba(37, 211, 102, 0.12);
+  border: 1px solid rgba(37, 211, 102, 0.3);
+}
+
+.voice-btn:hover {
+  background: rgba(37, 211, 102, 0.22);
+}
+
+.video-btn {
+  background: rgba(0, 149, 246, 0.12);
+  border: 1px solid rgba(0, 149, 246, 0.3);
+}
+
+.video-btn:hover {
+  background: rgba(0, 149, 246, 0.22);
+}
+
+.action-icon-circle {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.voice-circle {
+  background-color: var(--wa-green);
+}
+
+.video-circle {
+  background-color: var(--ig-blue);
+}
+
+.action-text {
+  display: flex;
+  flex-direction: column;
+}
+
+.action-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: #fff;
+}
+
+.action-sub {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.lobby-share-box {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px dashed rgba(255, 255, 255, 0.15);
+  border-radius: 12px;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+
+.share-whatsapp-btn {
+  background: #25d366;
+  border: none;
+  border-radius: 9999px;
+  padding: 8px 16px;
+  color: #000;
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  transition: transform 0.15s ease;
+}
+
+.share-whatsapp-btn:hover {
+  transform: scale(1.02);
+}
+
+.share-hint {
+  font-size: 11px;
+  color: var(--text-dim);
+  text-align: center;
+}
+
+.clean-sub-btn {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-family: inherit;
+  font-size: 12px;
+  cursor: pointer;
+  text-align: center;
+  padding: 4px;
+}
+
+.clean-sub-btn:hover {
+  color: #fff;
+  text-decoration: underline;
+}
+
+/* ==========================================================================
+   6. Connection Quality Modal Sheet
+   ========================================================================== */
+.net-modal {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 80;
+  padding: 20px;
+}
+
+.net-modal-card {
+  width: 100%;
+  max-width: 320px;
+  background: #111b21;
+  border: 1px solid var(--wa-border);
+  border-radius: 16px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.net-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.net-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.net-stat {
+  background: #1f2c34;
+  border-radius: 10px;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.net-stat-lbl {
+  font-size: 10px;
+  color: var(--text-dim);
+  text-transform: uppercase;
+}
+
+.net-stat-val {
+  font-size: 14px;
+  font-weight: 600;
+  color: #fff;
+}
+
+/* Toast Notifications */
+.toast-container {
+  position: absolute;
+  top: 80px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  z-index: 120;
+  pointer-events: none;
+}
+
+.tactical-toast {
+  background: rgba(31, 44, 52, 0.95);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 20px;
+  padding: 8px 16px;
+  font-size: 12px;
+  font-weight: 500;
+  color: #fff;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+  pointer-events: auto;
+  white-space: nowrap;
+}
+
+.hidden {
+  display: none !important;
+}

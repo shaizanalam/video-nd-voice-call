@@ -1,0 +1,28 @@
+{
+  "name": "pulse-link",
+  "version": "1.0.0",
+  "description": "Ultra-Low Bandwidth International P2P Comms (WebRTC, 6kbps Opus & Walkie-Talkie)",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js",
+    "test": "node test_sdp.js"
+  },
+  "keywords": [
+    "webrtc",
+    "low-bandwidth",
+    "opus",
+    "2g",
+    "walkie-talkie",
+    "ptt",
+    "voip"
+  ],
+  "author": "Antigravity",
+  "license": "MIT",
+  "dependencies": {
+    "compression": "^1.7.4",
+    "express": "^4.19.2",
+    "helmet": "^7.1.0",
+    "socket.io": "^4.7.5"
+  }
+}

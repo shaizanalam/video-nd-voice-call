@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="theme-color" content="#0b141a">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="description" content="Pulse-Link: Simple, crystal-clear voice and video calling for weak networks">
+  <title>Pulse Call</title>
+  
+  <link rel="manifest" href="/manifest.json">
+  <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+  <div id="call-app">
+
+    <!-- IN-CALL TOP BAR (Instagram/WhatsApp style floating header) -->
+    <header id="call-top-bar" class="call-top-bar">
+      <div class="call-contact-info">
+        <h2 id="contact-name" class="contact-name">Sister</h2>
+        <div class="call-meta">
+          <span id="call-timer" class="call-timer">Connecting...</span>
+          <span class="meta-dot">•</span>
+          <span id="call-security" class="call-security">
+            <svg viewBox="0 0 24 24" width="11" height="11" fill="currentColor">
+              <path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/>
+            </svg>
+            Encrypted
+          </span>
+        </div>
+      </div>
+
+      <div class="top-bar-actions">
+        <!-- Discreet Network Pill -->
+        <button id="network-pill-btn" class="network-pill" title="Network status">
+          <span id="net-dot" class="net-dot"></span>
+          <span id="net-label">6 kbps</span>
+        </button>
+
+        <!-- Messages / Logs Toggle -->
+        <button id="toggle-drawer-btn" class="icon-btn-round" title="Chat & Voice Notes">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
+            <path d="M20 2H4c-1.1 0-1.99.9-1.99 2L2 22l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zM6 9h12v2H6V9zm8 5H6v-2h8v2zm4-6H6V6h12v2z"/>
+          </svg>
+          <span id="unread-dot" class="unread-dot hidden"></span>
+        </button>
+      </div>
+    </header>
+
+    <!-- MAIN VIEWPORT (Video Feed or WhatsApp-style Voice Call Avatar) -->
+    <main id="call-viewport" class="call-viewport">
+      
+      <!-- Video Element -->
+      <video id="remote-video" class="remote-video" autoplay playsinline></video>
+
+      <!-- Voice Mode Stage (WhatsApp / Instagram voice call layout) -->
+      <div id="voice-call-stage" class="voice-call-stage active">
+        <div class="avatar-ripple-container">
+          <div class="ripple-ring ring-1"></div>
+          <div class="ripple-ring ring-2"></div>
+          <div class="avatar-circle">
+            <span class="avatar-initial">S</span>
+          </div>
+        </div>
+        <div class="voice-status-badge">
+          <span class="badge-dot"></span>
+          <span id="voice-mode-text">Ultra-Low Data Mode (6 kbps)</span>
+        </div>
+      </div>
+
+      <!-- Local Video Picture-in-Picture (Floating Corner) -->
+      <div id="local-pip" class="local-pip hidden">
+        <video id="local-video" class="local-video" autoplay playsinline muted></video>
+        <span class="pip-label">You</span>
+      </div>
+
+      <!-- Walkie-Talkie Push-to-Talk Floating Banner/Overlay -->
+      <div id="ptt-overlay" class="ptt-overlay">
+        <button id="ptt-main-btn" class="ptt-float-btn" title="Hold to record Walkie-Talkie voice note">
+          <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor">
+            <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/>
+            <path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/>
+          </svg>
+          <span id="ptt-btn-label">Hold to Talk</span>
+        </button>
+        <span id="ptt-rec-timer" class="ptt-rec-timer hidden">00:00 • 0.0 KB</span>
+      </div>
+    </main>
+
+    <!-- IN-CALL BOTTOM FLOATING DOCK (Instagram/WhatsApp style rounded controls) -->
+    <footer id="call-bottom-dock" class="call-bottom-dock">
+      <div class="dock-pill">
+        
+        <!-- Mic Toggle -->
+        <button id="mic-btn" class="dock-circle-btn" title="Mute/Unmute Mic">
+          <svg id="mic-icon-on" viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
+            <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/>
+            <path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/>
+          </svg>
+          <svg id="mic-icon-off" class="hidden" viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
+            <path d="M19 11h-1.7c0 .74-.16 1.43-.43 2.05l1.23 1.23c.56-.98.9-2.09.9-3.28zm-4.02.17c0-.06.02-.11.02-.17V5c0-1.66-1.34-3-3-3S9 3.34 9 5v.18l5.98 5.99zM4.27 3L3 4.27l6.01 6.01V11c0 1.66 1.33 3 2.99 3 .22 0 .44-.03.65-.08l4.27 4.27c-1.36.87-2.97 1.4-4.71 1.4-3.53 0-6.43-2.61-6.92-6H3.29c.49 4.6 4.3 8.21 8.92 8.71V21h2v-2.29c1.62-.18 3.12-.76 4.39-1.61L19.73 21 21 19.73 4.27 3z"/>
+          </svg>
+          <span class="btn-caption">Mic</span>
+        </button>
+
+        <!-- Video Camera Toggle -->
+        <button id="cam-btn" class="dock-circle-btn" title="Camera On/Off">
+          <svg id="cam-icon-on" viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
+            <path d="M17 10.5V7c0-.55-.45-1-1-1H4c-.55 0-1 .45-1 1v10c0 .55.45 1 1 1h12c.55 0 1-.45 1-1v-3.5l4 4v-11l-4 4z"/>
+          </svg>
+          <svg id="cam-icon-off" class="hidden" viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
+            <path d="M21 6.5l-4 4V7c0-.55-.45-1-1-1H9.82L21 17.18V6.5zM3.27 2L2 3.27 4.73 6H4c-.55 0-1 .45-1 1v10c0 .55.45 1 1 1h12c.21 0 .39-.08.55-.18L19.73 21 21 19.73 3.27 2zM16 16.73L5.27 6H16v10.73z"/>
+          </svg>
+          <span class="btn-caption">Video</span>
+        </button>
+
+        <!-- 2G Mode / Low Data Switch -->
+        <button id="killswitch-btn" class="dock-circle-btn" title="Switch to 2G Survival Mode">
+          <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor">
+            <path d="M7 2v11h3v9l7-12h-4l4-8z"/>
+          </svg>
+          <span class="btn-caption">2G Mode</span>
+        </button>
+
+        <!-- Voice Clarity Boost -->
+        <button id="vocal-boost-btn" class="dock-circle-btn" title="Enhance Vocal Clarity">
+          <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor">
+            <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/>
+          </svg>
+          <span class="btn-caption">Boost</span>
+        </button>
+
+        <!-- End Call Button (Vibrant WhatsApp/Instagram Red) -->
+        <button id="end-link-btn" class="dock-circle-btn end-call-btn" title="End Call">
+          <svg viewBox="0 0 24 24" width="26" height="26" fill="currentColor">
+            <path d="M12 9c-1.6 0-3.15.25-4.6.72v3.1c0 .39-.23.74-.56.9-.98.49-1.87 1.12-2.66 1.85-.18.18-.43.28-.7.28-.28 0-.53-.11-.71-.29L.29 13.08a.99.99 0 0 1 0-1.41C3.26 8.78 7.4 7 12 7c4.6 0 8.74 1.78 11.71 4.67.39.39.39 1.02 0 1.41l-2.48 2.48c-.18.18-.43.29-.71.29-.27 0-.52-.11-.7-.28-.79-.74-1.69-1.36-2.67-1.85-.33-.16-.56-.5-.56-.9v-3.1C15.15 9.25 13.6 9 12 9z"/>
+          </svg>
+          <span class="btn-caption">End</span>
+        </button>
+
+      </div>
+    </footer>
+
+    <!-- SLIDE-UP CHAT & VOICE LOGS SHEET -->
+    <aside id="comms-drawer" class="comms-drawer collapsed">
+      <div class="drawer-header">
+        <div class="drawer-handle"></div>
+        <div class="drawer-header-row">
+          <h3 class="drawer-title">Messages & Voice Notes</h3>
+          <button id="drawer-close-btn" class="drawer-close-btn">✕</button>
+        </div>
+      </div>
+
+      <div id="comms-feed" class="drawer-feed">
+        <!-- Messages & Voice notes rendered here -->
+      </div>
+
+      <div class="drawer-input-row">
+        <input type="text" id="chat-input" class="chat-input" placeholder="Message sister..." maxlength="250">
+        <button id="chat-send-btn" class="chat-send-btn" title="Send">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
+            <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
+          </svg>
+        </button>
+      </div>
+    </aside>
+
+    <!-- NETWORK DIAGNOSTICS BOTTOM SHEET (Opens when tapping network pill) -->
+    <div id="net-modal" class="net-modal hidden">
+      <div class="net-modal-card">
+        <div class="net-modal-header">
+          <h4>Connection Quality</h4>
+          <button id="close-net-btn" class="drawer-close-btn">✕</button>
+        </div>
+        <div class="net-grid">
+          <div class="net-stat">
+            <span class="net-stat-lbl">Bandwidth</span>
+            <span id="diag-total" class="net-stat-val">6.2 kbps</span>
+          </div>
+          <div class="net-stat">
+            <span class="net-stat-lbl">Latency (RTT)</span>
+            <span id="metric-rtt" class="net-stat-val">120ms</span>
+          </div>
+          <div class="net-stat">
+            <span class="net-stat-lbl">Packet Loss</span>
+            <span id="metric-loss" class="net-stat-val">0.0%</span>
+          </div>
+          <div class="net-stat">
+            <span class="net-stat-lbl">Routing</span>
+            <span id="diag-path" class="net-stat-val">Direct P2P</span>
+          </div>
+        </div>
+        <!-- Hidden elements needed for JS telemetry state -->
+        <span id="metric-up" class="hidden">0.0k</span>
+        <span id="metric-down" class="hidden">0.0k</span>
+        <span id="metric-path" class="hidden">Direct</span>
+        <span id="diag-jitter" class="hidden">0ms</span>
+        <span id="diag-loss" class="hidden">0%</span>
+        <canvas id="sparkline-canvas" class="hidden" width="100" height="30"></canvas>
+      </div>
+    </div>
+
+    <!-- CLEAN LOBBY / CALL SETUP SCREEN (WhatsApp / Instagram Style) -->
+    <div id="lobby-overlay" class="lobby-overlay">
+      <div class="lobby-sheet">
+        
+        <!-- Profile Avatar & Branding -->
+        <div class="lobby-profile">
+          <div class="lobby-avatar">
+            <svg viewBox="0 0 24 24" width="48" height="48" fill="#aebac1">
+              <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+            </svg>
+          </div>
+          <h1 class="lobby-app-title">Pulse Call</h1>
+          <p class="lobby-desc">Fast, crystal-clear calls built to survive 2G networks</p>
+        </div>
+
+        <!-- Room Input Form -->
+        <div class="lobby-card">
+          <div class="lobby-field">
+            <label class="field-label" for="room-id-input">CALL WITH</label>
+            <input type="text" id="room-id-input" class="clean-input" placeholder="Sister / Room Name" value="Sister" autofocus>
+          </div>
+
+          <!-- Hidden inputs for backward-compatibility with underlying JS engine -->
+          <input type="password" id="room-pin-input" class="hidden" value="">
+          <select id="mode-select" class="hidden">
+            <option value="SURVIVAL_2G" selected>2G Voice</option>
+            <option value="ULTRA_LOW_VIDEO">Ultra Low Video</option>
+            <option value="LOW_VIDEO">Low Video</option>
+            <option value="BALANCED_VIDEO">Balanced Video</option>
+          </select>
+          <input type="checkbox" id="auto-governor-check" class="hidden" checked>
+
+          <!-- WhatsApp Style Call Buttons -->
+          <div class="lobby-call-actions">
+            
+            <!-- Voice Call (Primary - 6 kbps) -->
+            <button id="voice-call-btn" class="call-action-btn voice-btn">
+              <div class="action-icon-circle voice-circle">
+                <svg viewBox="0 0 24 24" width="26" height="26" fill="#fff">
+                  <path d="M20.01 15.38c-1.23 0-2.42-.2-3.53-.56a.977.977 0 0 0-1.01.24l-2.2 2.2a15.053 15.053 0 0 1-6.59-6.59l2.2-2.21a.96.96 0 0 0 .25-1A11.36 11.36 0 0 1 8.5 4c0-.55-.45-1-1-1H4c-.55 0-1 .45-1 1 0 9.39 7.61 17 17 17 .55 0 1-.45 1-1v-3.5c0-.55-.45-1-.99-1.12z"/>
+                </svg>
+              </div>
+              <div class="action-text">
+                <span class="action-title">Voice Call</span>
+                <span class="action-sub">Recommended (6 kbps • Works on 2G)</span>
+              </div>
+            </button>
+
+            <!-- Video Call (Low-Bandwidth Adaptive) -->
+            <button id="video-call-btn" class="call-action-btn video-btn">
+              <div class="action-icon-circle video-circle">
+                <svg viewBox="0 0 24 24" width="26" height="26" fill="#fff">
+                  <path d="M17 10.5V7c0-.55-.45-1-1-1H4c-.55 0-1 .45-1 1v10c0 .55.45 1 1 1h12c.55 0 1-.45 1-1v-3.5l4 4v-11l-4 4z"/>
+                </svg>
+              </div>
+              <div class="action-text">
+                <span class="action-title">Video Call</span>
+                <span class="action-sub">Low Data Video (120p / 180p)</span>
+              </div>
+            </button>
+
+          </div>
+
+          <!-- Share Link / WhatsApp Invite -->
+          <div class="lobby-share-box">
+            <button id="share-link-btn" class="share-whatsapp-btn">
+              <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
+                <path d="M12.04 2c-5.46 0-9.91 4.45-9.91 9.91 0 1.75.46 3.45 1.32 4.95L2.05 22l5.25-1.38c1.45.79 3.08 1.21 4.74 1.21 5.46 0 9.91-4.45 9.91-9.91 0-2.65-1.03-5.14-2.9-7.01A9.816 9.816 0 0 0 12.04 2zm.01 16.67c-1.48 0-2.93-.4-4.2-1.15l-.3-.18-3.12.82.83-3.04-.2-.31a8.19 8.19 0 0 1-1.26-4.38c0-4.54 3.7-8.24 8.24-8.24 2.2 0 4.27.86 5.82 2.42a8.18 8.18 0 0 1 2.41 5.83c.02 4.54-3.68 8.23-8.22 8.23z"/>
+              </svg>
+              <span>Copy Link for WhatsApp / SMS</span>
+            </button>
+            <p class="share-hint">Send this link to your sister. One tap joins the call!</p>
+          </div>
+
+          <!-- Secondary Walkie-Talkie Button -->
+          <button id="ptt-only-btn" class="clean-sub-btn">
+            Open Walkie-Talkie Only (No WebRTC)
+          </button>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Hidden compatibility elements required for app.js -->
+    <div class="hidden">
+      <button id="init-link-btn"></button>
+      <div id="hud-status-pill"></div>
+      <span id="hud-status-text"></span>
+      <div id="crt-overlay"></div>
+      <button id="toggle-crt-btn"></button>
+      <button id="toggle-pip-btn"></button>
+      <canvas id="audio-spectrum-canvas"></canvas>
+      <div id="voice-watermark"></div>
+      <input type="checkbox" id="auto-play-ptt-check" checked>
+      <button id="adv-settings-btn"></button>
+      <div id="advanced-modal" class="hidden">
+        <input type="text" id="turn-url-input">
+        <input type="text" id="turn-user-input">
+        <input type="password" id="turn-pass-input">
+        <button id="close-turn-btn"></button>
+        <button id="save-turn-btn"></button>
+      </div>
+    </div>
+
+    <!-- Floating Toasts -->
+    <div id="toast-container" class="toast-container"></div>
+  </div>
+
+  <!-- Socket.io & Scripts -->
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="/js/sdp-hacker.js"></script>
+  <script src="/js/telemetry.js"></script>
+  <script src="/js/ptt.js"></script>
+  <script src="/js/webrtc.js"></script>
+  <script src="/js/app.js"></script>
+</body>
+</html>
